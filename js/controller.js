@@ -1,10 +1,10 @@
 function Controller(fn){
-	this.aa=new AudioAnalyzer(fn);
-	this.vr=new videoRender(this.aa.fftSize/2/this.aa.bandRatio);
+	this.aa=new AudioAnalyzer(fn,32);	
+	this.vr=new videoRender(this.aa.fftSize/2/this.aa.bandRatio,4);
 	this.connections=[];
 	this.playing=false;
-	bind(this, ["update","onkeypress","freqToAngle"]);
-
+	bind(this, ["update","onkeypress","freqToAngle","play"]);
+	//this.aa.el.onplay=this.update;
 	//this.connect([this.aa.getEnergy,Math.sqrt, Math.sqrt,this.vr.setCylinderRadius]);
 	//this.connect([this.aa.getEnergy,Math.sqrt, Math.sqrt,shadeOfRed,this.vr.setCylinderColor]);
 	this.connect([this.aa.getNormBands, this.vr.setRoundCylindersHeight]);
@@ -12,12 +12,12 @@ function Controller(fn){
 	this.connect([this.aa.getCentroid, this.freqToAngle, this.vr.setPointerCentr]);
 	this.connect([this.aa.getEnergy, Math.sqrt,Math.sqrt, Math.sqrt,this.vr.setEnergyFloor]);
 
-	
-
+	this.vr.scene.addEventListener("enter-vr",this.play);
+	//this.update();
 }
 
 Controller.prototype={
-	play:function(){
+	play_:function(){
 		this.aa.el.play();
 		this.playing=true;
 		requestAnimationFrame(this.update);
@@ -55,10 +55,14 @@ Controller.prototype={
 
 	},
 	update_:function(){
-		if(this.playing){
+		if(this.playing){//if(!this.aa.el.paused){//
+			console.log("udpating");
 			this.aa.update();
-			this.executeConnections();		
+			console.log("audio updated");
+			this.executeConnections();	
+			console.log("connections");	
 			requestAnimationFrame(this.update);
+			console.log(this.playing);
 		}
 	},
 	connect:function(funcs){
@@ -83,7 +87,7 @@ Controller.prototype={
 
 }
 
-var fn='gge.mp3';//'sff.mp3';//
+var fn='files/gge.mp3';//'sff.mp3';//
 var C;
 
 

@@ -1,10 +1,11 @@
-function AudioAnalyzer(fn){
+function AudioAnalyzer(fn, bandRatio){
 	this.fn=fn;
 	this.ctx=new AudioContext();
 	this.el=document.getElementById('audio');
 	this.whatToCompute={};
 	this.computed={};
-	this.bandRatio=4;
+
+	this.bandRatio=bandRatio;
 	this.buildSource();
 	this.buildAnalysis();
 	bind(this,["getCentroid","getNormBands","getEnergy","computeEnergy","computeCentroid","update","getNormFrequency"])

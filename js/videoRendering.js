@@ -85,7 +85,7 @@ videoRender.prototype={
 	setRoundCylindersHeight_:function(values){		
 		//console.log(values);
 		
-		var mul=3;
+		var mul=10;
 		for(var n=0; n<this.nBands; n++){
 			var scaley=mul*values[n]+0.01;
 			this.cylinders[n].object3D.scale.y=scaley;// setAttribute("height",2*values[n]);

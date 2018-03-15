@@ -1,6 +1,6 @@
 <html>
   <head>
-    <script src="https://aframe.io/releases/0.7.0/aframe.min.js"></script>
+    <script src="js/aframe.min.js"></script>
     <script src="js/audioAnalysis.js?a=<?php echo rand()?>"></script>
     <script src="js/videoRendering.js?a=<?php echo rand()?>"></script>
     <script src="js/controller.js?a=<?php echo rand()?>"></script>
@@ -14,6 +14,6 @@
       <!--<a-cylinder id="cylinder" color="#ff0000" position="0 0 -4"><a-cylinder>-->
       
     </a-scene>
-    <audio id="audio"></audio>
+    <audio id="audio" loop></audio>
   </body>
 </html>
