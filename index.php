@@ -1,6 +1,7 @@
 <html>
   <head>
-    <script src="js/aframe.min.js"></script>
+    <!--<script src="js/aframe.min.js"></script>-->
+     <script src="https://aframe.io/releases/0.7.0/aframe.min.js"></script>
     <script src="js/audioAnalysis.js?a=<?php echo rand()?>"></script>
     <script src="js/videoRendering.js?a=<?php echo rand()?>"></script>
     <script src="js/controller.js?a=<?php echo rand()?>"></script>

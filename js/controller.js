@@ -13,14 +13,16 @@ function Controller(fn){
 	this.connect([this.aa.getEnergy, Math.sqrt,Math.sqrt, Math.sqrt,this.vr.setEnergyFloor]);
 
 	this.vr.scene.addEventListener("enter-vr",this.play);
+	this.vr.scene.addEventListener('onclick',this.onkeypress,' ');
 	//this.update();
 }
 
 Controller.prototype={
 	play_:function(){
+		//alert("hey");
 		this.aa.el.play();
 		this.playing=true;
-		requestAnimationFrame(this.update);
+		window.requestAnimationFrame(this.update);
 
 	},
 	pause:function(){
@@ -56,13 +58,13 @@ Controller.prototype={
 	},
 	update_:function(){
 		if(this.playing){//if(!this.aa.el.paused){//
-			console.log("udpating");
+			//console.log("udpating");
 			this.aa.update();
-			console.log("audio updated");
+			//console.log("audio updated");
 			this.executeConnections();	
-			console.log("connections");	
-			requestAnimationFrame(this.update);
-			console.log(this.playing);
+			//console.log("connections");	
+			window.requestAnimationFrame(this.update);
+			//console.log(this.playing);
 		}
 	},
 	connect:function(funcs){
@@ -94,7 +96,6 @@ var C;
 window.addEventListener('load', init, false);
 
 function init() {
-
   C= new Controller(fn);    
   console.log('creating');
   document.onkeypress=C.onkeypress;
