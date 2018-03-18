@@ -6,12 +6,12 @@
 		arg sG = 1.0, tG = 1.0, fG = 1.0;
 
 		//sig1 = SinOsc.ar(freq:freq,mul:mul*pan);
-
+		var wS=0.1;
 		var input=AudioIn.ar([1,2]);
-		var secondNote=PitchShift.ar(input,windowSize:0.5,pitchRatio:sG);
-		var thirdNote=PitchShift.ar(input,windowSize:0.5,pitchRatio:tG);
-		var fourthNote=PitchShift.ar(input,windowSize:0.5,pitchRatio:fG);
-		var out_signal=input+secondNote+thirdNote+fourthNote;
+		var secondNote=PitchShift.ar(input,windowSize:wS,pitchRatio:sG);
+		var thirdNote=PitchShift.ar(input,windowSize:wS,pitchRatio:tG);
+		var fourthNote=PitchShift.ar(input,windowSize:wS,pitchRatio:fG);
+		var out_signal=secondNote+thirdNote+fourthNote;
 		Out.ar(1, out_signal);
  }).add;
 )
