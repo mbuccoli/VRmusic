@@ -40,16 +40,20 @@ OscMessage buildHandMessage(OscMessage handMessage, boolean found, PVector posit
 void draw() {
 //  frameRate(leap.getFrameRate());
   background(255);
+  int vgreen=floor(map(centre, 0.1,0.5,255,0));
+  int vred=floor(map(centre, 0.5,1,0,255));
   
   
+  fill(vred,vgreen,0);
+  stroke(0);
+  rect(0,0, 640, 240);
   /*OscMessage handMessage = new OscMessage("/hand");
   handMessage = buildHandMessage(handMessage, leftFound, leftPosition, leftRotation);
   handMessage = buildHandMessage(handMessage, rightFound, rightPosition, rightRotation);
   handMessage.print();  
   oscP5.send(handMessage, myRemoteLocation);*/
-  
 }
-
+float centre=1;
 void convertAndSend(float rotX, float rotY, float rotZ){  
   int zone=0;
   if(rotX<-0.4 && abs(rotY)<0.4){zone=1;}
@@ -57,6 +61,7 @@ void convertAndSend(float rotX, float rotY, float rotZ){
   else if(rotY<-0.4 && abs(rotX)<0.4){zone=3;}
   else if(rotY>0.4 && abs(rotX)<0.4){zone=4;}
   else if(abs(rotX)>0.4 && abs(rotY)>0.4){zone=5;}
+  centre=sqrt(rotX*rotX+rotY*rotY+rotZ*rotZ);
   
   if(zone==oldZone){return;}
   oldZone=zone;
@@ -101,12 +106,12 @@ void oscEvent(OscMessage theOscMessage) {
   print(" X "+ str(rotX));
   print(" Y "+ str(rotY));
   println(" Z "+ str(rotZ));
-  if(rotX>rotMax){rotMax=rotX;}
+/*  if(rotX>rotMax){rotMax=rotX;}
   if(rotY>rotMax){rotMax=rotY;}
   if(rotZ>rotMax){rotMax=rotZ;}
   if(rotX<rotMin){rotMin=rotX;}
   if(rotY<rotMin){rotMin=rotY;}
-  if(rotZ<rotMin){rotMin=rotZ;}
+  if(rotZ<rotMin){rotMin=rotZ;}*/
   //print("Range: min= "+str(rotMin));
   //println(" max= "+str(rotMax));
   convertAndSend(rotX,rotY,rotZ);
