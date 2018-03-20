@@ -292,7 +292,7 @@
 
 const userHeight=1.6;
 var themes = {
-    pinkBlue: ["#FF0032", "#FF5C00", "#00FFB8", "#53FF00"],
+    pinkBlue: ["#FF0032", "#FF5C00", "#00FFB8", "#53FF00","#FF00A0"],
     yellowGreen: ["#F7F6AF", "#9BD6A3", "#4E8264", "#1C2124", "#D62822"],
     yellowRed: ["#ECD078", "#D95B43", "#C02942", "#542437", "#53777A"],
     blueGray: ["#343838", "#005F6B", "#008C9E", "#00B4CC", "#00DFFC"],
@@ -301,8 +301,8 @@ var themes = {
 
 function videoRender(kwargs){
 	var defKwargs={'nBands':4, 'N':100, 'themeName':'blueGray', 'minRadiusSpace':2,
-				   'maxRadiusSpace':4, 'minRadiusSpace':2,
-				   'minRadiusParticle':0.1, 'maxRadiusParticle':0.3,'idScene':'scene'};
+				   'maxRadiusSpace':3, 'minRadiusSpace':2.7,
+				   'minRadiusParticle':0.4, 'maxRadiusParticle':0.5,'idScene':'scene'};
 	Object.assign(defKwargs, kwargs);
 	Object.assign(this, defKwargs);
 	this.theme=themes[this.themeName];
@@ -442,8 +442,13 @@ function unsetVR(){
 
 function Controller(fn){
 	bind(this, ["update","onkeypress","freqToAngle","play","playPause"]);
-	this.aa=new AudioAnalyzer(fn,{'nBands':9});	
-	this.vr=new videoRender({'N':100,'themeName':'pinkBlue'});
+	if(fn.indexOf("everlong")!=-1){
+		this.aa=new AudioAnalyzer(fn,{'nBands':9, 'bands':[300,1500,5000,10000]});
+	}
+	else{
+		this.aa=new AudioAnalyzer(fn,{'nBands':9});	
+	}
+	this.vr=new videoRender({'N':10,'themeName':'pinkBlue','nBands':5});
 	this.connections=[];
 	this.playing=false;
 	document.getElementById("playPause").addEventListener("click",this.playPause);
@@ -452,7 +457,7 @@ function Controller(fn){
 	//this.aa.el.onplay=this.update;
 	//this.connect([this.aa.getEnergy,Math.sqrt, Math.sqrt,this.vr.setCylinderRadius]);
 	//this.connect([this.aa.getEnergy,Math.sqrt, Math.sqrt,shadeOfRed,this.vr.setCylinderColor]);
-	this.connect([this.aa.getNormBands, sqrtArray,this.vr.setParticles]);
+	this.connect([this.aa.getNormBands,this.vr.setParticles]);
 	//this.connect([this.vr.getCameraRot, console.log]);
 	
 	/*
@@ -559,7 +564,7 @@ Controller.prototype={
 
 }
 
-var fn='files/sff.mp3';//gge.mp3';//'
+var fn='files/vr_everlong.mp3';//gge.mp3';//'
 var C;
 
 
@@ -577,10 +582,13 @@ function click(){
 }
 
 function AudioAnalyzer(fn, kwargs={}){
-	var defKwargs={'nBands':4,'winSize':1024,'idAudio':'audio'};	
+	var defKwargs={'nBands':4,'winSize':1024,'idAudio':'audio', 'bands':[]};	
 	Object.assign(defKwargs, kwargs);
 	Object.assign(this, defKwargs);
 	this.nBins=this.winSize/2;
+	if(this.bands!=[]){
+		this.nBands = 5;
+	}
 	this.bandRatio=this.nBins/this.nBands;
 	this.fn=fn;
 	this.ctx=new AudioContext();
@@ -617,13 +625,17 @@ AudioAnalyzer.prototype={
 		this.computed["normFreq"] = new Array(this.nBins);
 		this.computed["timeArray"] = new Float32Array(this.winSize);
 		this.computed["normBands"] = new Float32Array(this.nBands);
+		this.bandIdxs = new Array(this.bands.length);
 		this.rangeDB=this.analyser.maxDecibels-this.analyser.minDecibels;
 		this.freqs=new Array(this.nBins);
 		this.sampleRate=this.ctx.sampleRate;
 		for(var i=0; i<this.nBins; i++){
 			this.freqs[i]=i/(this.nBins-1)*this.sampleRate/2;
 		}
-
+		for(var i=0; i<this.nBands-1; i++){
+			this.bandIdxs[i]=this.bands[i]/this.sampleRate*this.winSize;
+		}
+		this.bandIdxs.push(this.nBins);
 
  	},
  	reset:function(){
@@ -689,15 +701,21 @@ AudioAnalyzer.prototype={
 		this.analyser.getFloatFrequencyData(this.computed.freqArray);
 		var normSum=0;
 		var band=0;
+		var bandWidth=0;
 		for(var i=0; i<this.nBins; i++){
 			this.computed["normFreq"][i]=Math.max((this.computed["freqArray"][i]-this.analyser.minDecibels)/this.rangeDB,0);
 			normSum+=this.computed["normFreq"][i];
-			if(i+1>(band+1)*this.bandRatio){
-			//if((i+1)%this.bandRatio<0){
-				//this.computed.normBands[Math.floor(i/this.bandRatio)]=normSum/this.bandRatio;
+			bandWidth++;
+			if(this.bands.length==0 && i+1>(band+1)*this.bandRatio ){
 				this.computed.normBands[band]=normSum/this.bandRatio;
 				band++;
 				normSum=0;
+			}
+			if(this.bands.length>0 && i+1>this.bandIdxs[band]){
+				this.computed.normBands[band]=normSum/bandWidth;
+				band++;
+				normSum=0;
+				bandWidth=0;
 			}
 		}
 		
