@@ -9,11 +9,11 @@
   modes = ["cubic", "conic"];
 
   themes = {
-    pinkBlue: [0xFF0032, 0xFF5C00, 0x00FFB8, 0x53FF00],
-    yellowGreen: [0xF7F6AF, 0x9BD6A3, 0x4E8264, 0x1C2124, 0xD62822],
-    yellowRed: [0xECD078, 0xD95B43, 0xC02942, 0x542437, 0x53777A],
-    blueGray: [0x343838, 0x005F6B, 0x008C9E, 0x00B4CC, 0x00DFFC],
-    blackWhite: [0xFFFFFF, 0x000000, 0xFFFFFF, 0x000000, 0xFFFFFF]
+    pinkBlue: ["#FF0032", "#FF5C00", "#00FFB8", "#53FF00],
+    yellowGreen: ["#F7F6AF", "#9BD6A3", "#4E8264", "#1C2124", "#D62822],
+    yellowRed: ["#ECD078", "#D95B43", "#C02942", "#542437", "#53777A],
+    blueGray: ["#343838", "#005F6B", "#008C9E", "#00B4CC", "#00DFFC],
+    blackWhite: ["#FFFFFF", "#000000", "#FFFFFF", "#000000", "#FFFFFF]
   };
 
   themesNames = [];
@@ -146,7 +146,7 @@
   };
 
   build = function() {
-    stage = new PIXI.Stage(0x000000);
+    stage = new PIXI.Stage("#000000);
     renderer = PIXI.autoDetectRenderer($(window).width(), $(window).height());
     $(document.body).append(renderer.view);
     texCircle = createCircleTex();
@@ -174,7 +174,7 @@
   createCircleTex = function() {
     var gCircle;
     gCircle = new PIXI.Graphics();
-    gCircle.beginFill(0xFFFFFF);
+    gCircle.beginFill("#FFFFFF);
     gCircle.drawCircle(0, 0, params.radiusParticle);
     gCircle.endFill();
     return gCircle.generateTexture();
@@ -292,28 +292,29 @@
 
 const userHeight=1.6;
 var themes = {
-    pinkBlue: ["0xFF0032", 0xFF5C00, 0x00FFB8, 0x53FF00],
-    yellowGreen: [0xF7F6AF, 0x9BD6A3, 0x4E8264, 0x1C2124, 0xD62822],
-    yellowRed: [0xECD078, 0xD95B43, 0xC02942, 0x542437, 0x53777A],
+    pinkBlue: ["#FF0032", "#FF5C00", "#00FFB8", "#53FF00"],
+    yellowGreen: ["#F7F6AF", "#9BD6A3", "#4E8264", "#1C2124", "#D62822"],
+    yellowRed: ["#ECD078", "#D95B43", "#C02942", "#542437", "#53777A"],
     blueGray: ["#343838", "#005F6B", "#008C9E", "#00B4CC", "#00DFFC"],
-    blackWhite: [0xFFFFFF, 0x000000, 0xFFFFFF, 0x000000, 0xFFFFFF]
+    blackWhite: ["#FFFFFF", "#000000", "#FFFFFF", "#000000", "#FFFFFF"]
   };
 
-function videoRender(N=100, theme='blueGray'){
-	console.log("Creating videoRender");
-	bind(this,["setupScene","setPalline"]);//setPointerCentr","setEnergyFloor","setCylinderHeight","setCylinderRadius","setCylinderColor","setRoundCylindersHeight","setRoundCylindersColor"]);
-	this.scene=document.getElementById('scene');
-	
-	this.theme=themes[theme];
-	this.N=N;
-	this.groups=4;
-	this.minRadiusSphere=2;
-	this.maxRadiusSphere=4;
-	this.minRadiusPallina=0.1;//01;
-	this.maxRadiusPallina=0.3;
-	this.rangeRadius=this.maxRadiusSphere-this.minRadiusSphere;
+function videoRender(kwargs){
+	var defKwargs={'nBands':4, 'N':100, 'themeName':'blueGray', 'minRadiusSpace':2,
+				   'maxRadiusSpace':4, 'minRadiusSpace':2,
+				   'minRadiusParticle':0.1, 'maxRadiusParticle':0.3,'idScene':'scene'};
+	Object.assign(defKwargs, kwargs);
+	Object.assign(this, defKwargs);
+	this.theme=themes[this.themeName];
 
-	this.palline=[];
+
+	this.rangeSpace=this.maxRadiusSpace-this.minRadiusSpace;
+
+	console.log("Creating videoRender");
+	bind(this,["setupScene","setParticles","getCameraRot"]);//setPointerCentr","setEnergyFloor","setCylinderHeight","setCylinderRadius","setCylinderColor","setRoundCylindersHeight","setRoundCylindersColor"]);
+	this.scene=document.getElementById(this.idScene);
+	
+	this.particles=[];
 	if(this.scene.renderStarted){this.setupScene();}
 	else{this.scene.addEventListener("renderstart", this.setupScene);}
 	console.log("ok");
@@ -322,46 +323,51 @@ videoRender.prototype={
 	setupScene_:function(){
 		console.log("Setting up scene");
 		var centreY=this.scene.camera.el.object3D.position.y;
-		k=0;
+		var k=0;
+		var band=0;
 		while(k<this.N){
 			
-      		var posX=(Math.random()-0.5)*2*this.maxRadiusSphere;      		
-      		var posY=((Math.random()-0.5)*2*this.maxRadiusSphere)+userHeight;
-      		var posZ=((Math.random()-0.5)*2*this.maxRadiusSphere);
-      		if(posX*posX+posY*posY+posZ*posZ<this.minRadiusSphere){
+      		var posX=(Math.random()-0.5)*2*this.maxRadiusSpace;      		
+      		var posY=((Math.random()-0.5)*2*this.maxRadiusSpace);//+userHeight;
+      		var posZ=((Math.random()-0.5)*2*this.maxRadiusSpace);
+      		if(posX*posX+posY*posY+posZ*posZ<this.minRadiusSpace){
       			continue
       		}
       		
-      		
-      		var color=this.theme[Math.floor(k/(this.N/this.groups))];
+      		posY+=userHeight;
+      		var color=this.theme[Math.floor(k/(this.N/this.nBands))];
       		
 			k=k+1;
-      		var pallina = document.createElement('a-sphere');
+      		var particle = document.createElement('a-sphere');
       		//console.log([posX, posY, posZ]);
-      		pallina.setAttribute("position", posX + " " +posY+ " " + posZ);
-      		pallina.setAttribute("color",color);
-      		pallina.setAttribute("radius", this.maxRadiusPallina*Math.random()+this.minRadiusPallina);
-      		pallina.setAttribute("scale","0.01 0.01 0.01")
-      		this.palline.push(pallina);
+      		particle.setAttribute("position", posX + " " +posY+ " " + posZ);
+      		particle.setAttribute("color",color);
+      		particle.setAttribute("radius", this.maxRadiusParticle*Math.random()+this.minRadiusParticle);
+      		particle.setAttribute("scale","0.01 0.01 0.01");
+      		particle["defPos"]=[posX, posY,posZ];
+      		this.particles.push(particle);
 
       		//console.log(Date.now());
       		//console.log([posX, posY, posZ]);
-      		this.scene.appendChild(pallina);
+      		this.scene.appendChild(particle);
 		}
     	
 		
 	},
-	setPalline_:function(values){
+	setParticles_:function(values){
 		//console.log(values);
-		for(var n=0; n<this.palline.length; n++){
+		for(var n=0; n<this.particles.length; n++){
 			
-			var pallina=this.palline[n];
-			var group=this.theme.indexOf(pallina.getAttribute("color"));
+			var particle=this.particles[n];
+			var band=this.theme.indexOf(particle.getAttribute("color"));
 			
-			var value=values[group]+0.01
+			var value=values[band]+0.01
 			
-			pallina.setAttribute("scale",value+" "+value+" "+value);
+			particle.setAttribute("scale",value+" "+value+" "+value);
 		}
+	},
+	getCameraRot_:function(){
+		return this.scene.camera.el.object3D.rotation.toArray().slice(0,3);
 	},
 	/*
 	setCylinderHeight_:function(value){
@@ -414,7 +420,7 @@ function setVR(){
 	isVR=true;
 	navigator.getVRDisplays().then(
 				function(displays){
-					if(displays.length==0){return}
+					if(displays.length==0){isVR=false; return}
 					vr=displays[0]; 
 					//console.log(vr);
 					//newFrame=vr.requestAnimationFrame;
@@ -436,8 +442,8 @@ function unsetVR(){
 
 function Controller(fn){
 	bind(this, ["update","onkeypress","freqToAngle","play","playPause"]);
-	this.aa=new AudioAnalyzer(fn,256);	
-	this.vr=new videoRender(100);
+	this.aa=new AudioAnalyzer(fn,{'nBands':9});	
+	this.vr=new videoRender({'N':100,'themeName':'pinkBlue'});
 	this.connections=[];
 	this.playing=false;
 	document.getElementById("playPause").addEventListener("click",this.playPause);
@@ -446,7 +452,9 @@ function Controller(fn){
 	//this.aa.el.onplay=this.update;
 	//this.connect([this.aa.getEnergy,Math.sqrt, Math.sqrt,this.vr.setCylinderRadius]);
 	//this.connect([this.aa.getEnergy,Math.sqrt, Math.sqrt,shadeOfRed,this.vr.setCylinderColor]);
-	this.connect([this.aa.getNormBands, this.vr.setPalline]);
+	this.connect([this.aa.getNormBands, sqrtArray,this.vr.setParticles]);
+	//this.connect([this.vr.getCameraRot, console.log]);
+	
 	/*
 	this.connect([this.aa.getNormBands, valuesToVUMeterColors,this.vr.setRoundCylindersColor]);
 	this.connect([this.aa.getCentroid, this.freqToAngle, this.vr.setPointerCentr]);
@@ -568,14 +576,22 @@ function click(){
 
 }
 
-function AudioAnalyzer(fn, bandRatio){
+function AudioAnalyzer(fn, kwargs={}){
+	var defKwargs={'nBands':4,'winSize':1024,'idAudio':'audio'};	
+	Object.assign(defKwargs, kwargs);
+	Object.assign(this, defKwargs);
+	this.nBins=this.winSize/2;
+	this.bandRatio=this.nBins/this.nBands;
 	this.fn=fn;
 	this.ctx=new AudioContext();
-	this.el=document.getElementById('audio');
+	this.el=document.getElementById(this.idAudio);
 	this.whatToCompute={};
 	this.computed={};
 
-	this.bandRatio=bandRatio;
+	//this.nBands=this.kwargs.nBands;
+
+
+	//this.bandRatio=bandRatio;
 	this.buildSource();
 	this.buildAnalysis();
 	bind(this,["getCentroid","getNormBands","getEnergy","computeEnergy","computeCentroid","update","getNormFrequency"])
@@ -595,17 +611,17 @@ AudioAnalyzer.prototype={
  	},
  	buildAnalysis:function(){
  		this.analyser= this.ctx.createAnalyser();
- 		this.analyser.fftSize=1024;
- 		this.fftSize=this.analyser.fftSize;//frequencyBinCount; 				
-		this.computed["freqArray"] = new Float32Array(this.fftSize/2);
-		this.computed["normFreq"] = new Array(this.fftSize/2);
-		this.computed["timeArray"] = new Float32Array(this.fftSize);
-		this.computed["normBands"] = new Float32Array(this.fftSize/this.bandRatio);
+ 		this.analyser.fftSize=this.winSize;
+ 		//this.fftSize=this.analyser.fftSize;//frequencyBinCount; 				
+		this.computed["freqArray"] = new Float32Array(this.nBins);
+		this.computed["normFreq"] = new Array(this.nBins);
+		this.computed["timeArray"] = new Float32Array(this.winSize);
+		this.computed["normBands"] = new Float32Array(this.nBands);
 		this.rangeDB=this.analyser.maxDecibels-this.analyser.minDecibels;
-		this.freqs=new Array(this.fftSize/2);
+		this.freqs=new Array(this.nBins);
 		this.sampleRate=this.ctx.sampleRate;
-		for(var i=0; i<this.fftSize/2; i++){
-			this.freqs[i]=i/(this.fftSize/2-1)*this.sampleRate/2;
+		for(var i=0; i<this.nBins; i++){
+			this.freqs[i]=i/(this.nBins-1)*this.sampleRate/2;
 		}
 
 
@@ -626,15 +642,15 @@ AudioAnalyzer.prototype={
  	},
  	computeEnergy_:function(){
  		var energy=0;
- 		for(var i=0; i<this.fftSize; i++){
+ 		for(var i=0; i<this.winSize; i++){
 			energy+=Math.pow(this.computed.timeArray[i],2);
 		}
-		this.computed["energy"]=energy/this.fftSize;
+		this.computed["energy"]=energy/this.winSize;
  	},
  	computeCentroid_:function(){
  		var num=0;
  		var den=0;
- 		for(var i=0; i<this.fftSize/2; i++){
+ 		for(var i=0; i<this.nBins; i++){
  			num+=this.freqs[i]*this.computed.normFreq[i];
  			den+=this.computed.normFreq[i];
  		}
@@ -672,11 +688,15 @@ AudioAnalyzer.prototype={
 		this.analyser.getFloatTimeDomainData(this.computed.timeArray);
 		this.analyser.getFloatFrequencyData(this.computed.freqArray);
 		var normSum=0;
-		for(var i=0; i<this.fftSize/2; i++){
+		var band=0;
+		for(var i=0; i<this.nBins; i++){
 			this.computed["normFreq"][i]=Math.max((this.computed["freqArray"][i]-this.analyser.minDecibels)/this.rangeDB,0);
 			normSum+=this.computed["normFreq"][i];
-			if((i+1)%this.bandRatio==0){
-				this.computed.normBands[Math.floor(i/this.bandRatio)]=normSum/this.bandRatio;
+			if(i+1>(band+1)*this.bandRatio){
+			//if((i+1)%this.bandRatio<0){
+				//this.computed.normBands[Math.floor(i/this.bandRatio)]=normSum/this.bandRatio;
+				this.computed.normBands[band]=normSum/this.bandRatio;
+				band++;
 				normSum=0;
 			}
 		}

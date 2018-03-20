@@ -47,3 +47,11 @@ function mul5(value){
 	return value*5;
 
 }
+
+function sqrtArray(values){
+	var vs=new Array(values.length);
+	for(var v=0; v<values.length; v++){
+		vs[v]=Math.sqrt(values[v]);
+	}
+	return values;
+}
