@@ -448,7 +448,7 @@ function Controller(fn){
 	else{
 		this.aa=new AudioAnalyzer(fn,{'nBands':9});	
 	}
-	this.vr=new videoRender({'N':10,'themeName':'pinkBlue','nBands':5});
+	this.vr=new videoRender({'N':200,'themeName':'pinkBlue','nBands':5});
 	this.connections=[];
 	this.playing=false;
 	document.getElementById("playPause").addEventListener("click",this.playPause);
